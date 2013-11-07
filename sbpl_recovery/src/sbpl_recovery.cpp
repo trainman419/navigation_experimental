@@ -98,13 +98,13 @@ namespace sbpl_recovery
     tf::Stamped<tf::Pose> global_pose;
     !local_costmap_->getRobotPose(global_pose);
 
-    costmap_2d::Costmap2D costmap;
-    local_costmap_->getCostmapCopy(costmap);
+    costmap_2d::Costmap2D * costmap;
+    costmap = local_costmap_->getCostmap();
 
     if(use_local_frame_)
     {
       std::vector<geometry_msgs::PoseStamped> transformed_plan;
-      if(base_local_planner::transformGlobalPlan(*tf_, plan->poses, global_pose, costmap, local_costmap_->getGlobalFrameID(), transformed_plan))
+      if(base_local_planner::transformGlobalPlan(*tf_, plan->poses, global_pose, *costmap, local_costmap_->getGlobalFrameID(), transformed_plan))
       {
         boost::mutex::scoped_lock l(plan_mutex_);
         if(!transformed_plan.empty())
