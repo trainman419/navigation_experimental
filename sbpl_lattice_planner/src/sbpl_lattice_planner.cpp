@@ -108,10 +108,9 @@ void SBPLLatticePlanner::initialize(std::string name, costmap_2d::Costmap2DROS* 
     lethal_obstacle_ = (unsigned char) lethal_obstacle;
     inscribed_inflated_obstacle_ = lethal_obstacle_-1;
     sbpl_cost_multiplier_ = (unsigned char) (costmap_2d::INSCRIBED_INFLATED_OBSTACLE/inscribed_inflated_obstacle_ + 1);
-    ROS_DEBUG("SBPL: lethal: %uz, inscribed inflated: %uz, multiplier: %uz",lethal_obstacle,inscribed_inflated_obstacle_,sbpl_cost_multiplier_);
+    ROS_INFO("SBPL: lethal: %uz, inscribed inflated: %uz, multiplier: %uz",lethal_obstacle,inscribed_inflated_obstacle_,sbpl_cost_multiplier_);
     
     costmap_ros_ = costmap_ros;
-    costmap_ros_->clearRobotFootprint();
     cost_map_ = costmap_ros_->getCostmap();
 
     std::vector<geometry_msgs::Point> footprint = costmap_ros_->getRobotFootprint();
@@ -129,10 +128,12 @@ void SBPLLatticePlanner::initialize(std::string name, costmap_2d::Costmap2DROS* 
       ROS_ERROR("Failed to set cost_inscribed_thresh parameter");
       exit(1);
     }
-    if(!env_->SetEnvParameter("cost_possibly_circumscribed_thresh", costMapCostToSBPLCost(cost_map_->getCircumscribedCost()))){
+    /*
+    if(!env_->SetEnvParameter("cost_possibly_circumscribed_thresh", costMapCostToSBPLCost(costmap_2d::INSCRIBED_INFLATED_OBSTACLE-1))){
       ROS_ERROR("Failed to set cost_possibly_circumscribed_thresh parameter");
       exit(1);
     }
+    */
     int obst_cost_thresh = costMapCostToSBPLCost(costmap_2d::LETHAL_OBSTACLE);
     vector<sbpl_2Dpt_t> perimeterptsV;
     perimeterptsV.reserve(footprint.size());
@@ -232,10 +233,6 @@ bool SBPLLatticePlanner::makePlan(const geometry_msgs::PoseStamped& start,
   }
 
   plan.clear();
-
-  ROS_DEBUG("[sbpl_lattice_planner] getting fresh copy of costmap");
-  costmap_ros_->clearRobotFootprint();
-  ROS_DEBUG("[sbpl_lattice_planner] robot footprint cleared");
 
   cost_map_ = costmap_ros_->getCostmap();
 
